@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  kdrif-api:
+    build: .
+    container_name: kdrif-api
+    command: uvicorn kdrif.api.app:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./kdrif_memory.db:/app/kdrif_memory.db
+    environment:
+      - KDRIF_LOG_LEVEL=INFO
+      - KDRIF_CONFIG_PATH=configs/kdrif.yaml
+
+  kdrif-dashboard:
+    build: .
+    container_name: kdrif-dashboard
+    command: streamlit run dashboard/streamlit_app.py --server.port=8501 --server.address=0.0.0.0
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./data:/app/data
+      - ./kdrif_memory.db:/app/kdrif_memory.db
+    depends_on:
+      - kdrif-api
